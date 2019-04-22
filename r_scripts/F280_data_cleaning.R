@@ -9,7 +9,7 @@ library(purrr)
 setwd("../data")
 #setwd("G:/Team Drives/APHIS  Private Data/Pathways")
 #setwd("I:/Ongoing Team Projects/Exclusion Support/AQI Cooperative Agreement")
-F280 <- fread("F280_CF_FY2014_to_FY2018.csv")
+F280 <- fread("/media/Kellyn/F20E17B40E177139/kpmontgo@ncsu.edu/Research/APHIS_Pathways/analysis/F280_CF_FY2014_to_FY2018.csv")
 
 # Add column for data cleaning (FALSE/TRUE), FALSE - do not use, TRUE - use
 F280$CLEAN <- "TRUE"
@@ -17,10 +17,82 @@ F280$CLEAN <- "TRUE"
 # Add notes column to document reason for omitting records, or what has been changed
 F280$NOTES <- ""
 
+# Add POE City and State
+poe <- read.csv("POE_geocoded.csv")
+poe <- poe[,c(2,4,5,6,7)]
+F280 <- merge(F280, poe, by='LOCATION', all.x = T)
+
+# Add origin country lat/lon $ hemispher
+origin_geocoded <- fread("origin_geocoded.csv")
+origin_geocoded <- origin_geocoded[, c(2:4)]
+origin_geocoded$hemisphere <- ""
+origin_geocoded[latitude_origin < 0]$hemisphere <- "southern"
+origin_geocoded[latitude_origin > 0]$hemisphere <- "northern"
+F280 <- merge(F280, origin_geocoded, by='ORIGIN_NM', all.x = T)
+
+# Add subregion groups for ORIGIN
+regions <- read.csv("subregions_geocoded.csv")
+regions <- regions[, c(2:6)]
+F280 <- merge(F280, regions, by='ORIGIN_NM', all.x = T)
+
+# For low frequency origin countries, use subregion as origin for model
+origin_ct <- as.data.table(count(F280$ORIGIN_NM))
+origin_low_freq <- origin_ct[freq<100]$x
+
+F280$Origin_Model <- ""
+F280[ORIGIN_NM %in% origin_low_freq]$Origin_Model <- F280[ORIGIN_NM %in% origin_low_freq]$Subregion
+F280[!ORIGIN_NM %in% origin_low_freq]$Origin_Model <- F280[!ORIGIN_NM %in% origin_low_freq]$ORIGIN_NM
+
+# Add season
+F280$season <- ""
+F280[MON >= 3 & MON <= 5 & hemisphere == "northern"]$season <- "spring"
+F280[MON >= 3 & MON <= 5 & hemisphere == "southern"]$season <- "fall"
+F280[MON >= 6 & MON <= 8 & hemisphere == "northern"]$season <- "summer"
+F280[MON >= 6 & MON <= 8 & hemisphere == "southern"]$season <- "winter"
+F280[MON >= 9 & MON <= 11 & hemisphere == "northern"]$season <- "fall"
+F280[MON >= 9 & MON <= 11 & hemisphere == "southern"]$season <- "spring"
+F280[((MON == 12) | (MON >= 1 & MON <= 2)) & (hemisphere == "northern")]$season <- "winter"
+F280[((MON == 12) | (MON >= 1 & MON <= 2)) & (hemisphere == "southern")]$season <- "summer"
+
+# Add average precip and temp by month for ORIGIN
+precip <- fread("country_precip_91_16.csv")
+temp <- fread("country_temp_91_16.csv")
+
+precip <- precip[,.(avg_precip=mean(`Rainfall - (MM)`)), by = .(Month, Country)]
+temp <- temp[,.(avg_temp=mean(`Temperature - (Celsius)`)), by = .(Month, Country)]
+climate <- merge(temp, precip, by = c("Month", "Country"), all = T)
+month <- as.data.frame(unique(climate$Month))
+names(month) <- 'Month'
+tmp <- c(4, 8, 12, 2, 1, 7, 6, 3, 5, 11, 10, 9)
+month$MON <- tmp
+climate <- merge(climate, month, by = 'Month', all.x = T)
+
+# Find countries without match in climate data, edit spelling where possible to make match
+#unmatched_climate <- F280[is.na(Month)]
+#write.csv((unique(unmatched_climate$ORIGIN_NM)), "/media/Kellyn/F20E17B40E177139/kpmontgo@ncsu.edu/Research/APHIS_Pathways/analysis/unmatched_climate_origin.csv")
+#write.csv((unique(climate$Country)), "/media/Kellyn/F20E17B40E177139/kpmontgo@ncsu.edu/Research/APHIS_Pathways/analysis/climate_countries.csv")
+climate[Country=="United Kingdom"]$Country <- "United Kingdom of Great Britain and N. Ireland"
+climate[Country=="United Kingdom"]$Country <- "United Kingdom of Great Britain and N. Ireland"
+climate[Country=="Cote d'Ivoire"]$Country <- "Cote D`Ivoire"
+climate[Country=="United States"]$Country <- "United States of America"
+climate[Country=="Vietnam"]$Country <- "Viet Nam"
+climate[Country=="Cook Is."]$Country <- "Cook Islands"
+climate[Country=="The Gambia"]$Country <- "Gambia"
+climate[Country=="St. Kitts &amp; Nevis"]$Country <- "St. Kitts and Nevis"
+climate[Country=="Trinidad &amp; Tobago"]$Country <- "Trinidad and Tobago"
+climate[Country=="The Bahamas"]$Country <- "Bahamas"
+climate[Country=="Cayman Is."]$Country <- "Cayman Islands"
+climate[Country=="Northern Mariana Is."]$Country <- "Northern Mariana Islands"
+climate[Country=="Virgin Is."]$Country <- "US Virgin Islands"
+climate[Country=="Solomon Is."]$Country <- "Solomon Islands"
+
+F280 <- merge(F280, climate, by.x = c("MON", "ORIGIN_NM"), by.y = c("MON", "Country"), all.x = T)
+unmatched_climate <- F280[is.na(Month)] # 2,157 records without climate match
+
 # Import Plantae Kingdom taxonomy from ITIS (https://www.itis.gov/hierarchy.html)
-jsonFamily <- fromJSON(file="Summaries/familyDict.json")
-jsonOrder <- fromJSON(file="Summaries/orderDict.json")
-jsonClass <- fromJSON(file="Summaries/classDict.json")
+jsonFamily <- fromJSON(file="familyDict.json")
+jsonOrder <- fromJSON(file="orderDict.json")
+jsonClass <- fromJSON(file="classDict.json")
 
 familyDF <- ldply(jsonFamily, data.frame, stringsAsFactors = F)
 names(familyDF) <- c("Family", "Genus")
@@ -80,7 +152,7 @@ names(orderCount) <- c("Order", "Count")
 orderCount[order(-orderCount$Count),]
 
 # Add columns for grouped disposition codes
-disp_lookup <- read.csv("Summaries/disp_group_lookup.csv")
+disp_lookup <- read.csv("disp_group_lookup.csv")
 F280 <- join(F280, disp_lookup, by = "DISP_CD")
 
 # Exclude disposition codes from analysis
@@ -145,21 +217,7 @@ F280_clean$PATHWAY <- as.factor(F280_clean$PATHWAY)
 F280_clean$Order <- as.factor(F280_clean$Order)
 F280_clean$Class <- as.factor(F280_clean$Class)
 
-origin_ct <- F280_clean[, .(.N), by = .(ORIGIN_NM)][order(-N)]
-origin_lowfreq <- unique(origin_ct[N < 500]$ORIGIN_NM)
-#write.csv(origin_ct, "Q:/My Drive/Coursework/GIS 714/Project/origin_ct.csv")
-
-regions_lookup <- read.csv("Q:/My Drive/Coursework/GIS 714/Project/subregions_geocoded.csv")
-subregions <- as.data.frame(unique(regions_lookup$Subregion))
-names(subregions) <- "Subregion"
-subregions$source_id <- c(1:22)
-regions_lookup <- join(regions_lookup, subregions, by = "Subregion")
-#subregion_geocode <- geocode(as.character(regions_lookup$Subregion))
-#regions_lookup$latitude_region <- subregion_geocode$lat
-#regions_lookup$longitude_region <- subregion_geocode$lon
-#write.csv(regions_lookup, "G:/My Drive/Coursework/GIS 714/Project/subregions_geocoded.csv")
-F280_clean <- join(F280_clean, regions_lookup, by = "ORIGIN_NM")
-
+write.csv(F280_clean, "/media/Kellyn/F20E17B40E177139/kpmontgo@ncsu.edu/Research/APHIS_Pathways/analysis/F280_clean.csv")
 
 # Sample data
 # F280_sample <- sample_n(F280_clean, 100000)

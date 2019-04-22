@@ -1,40 +1,74 @@
+library(data.table)
+library(plyr)
+library(tidyr)
+library(gtools)
+library(rjson)
+library(purrr)
 library(ggmap)
 register_google("AIzaSyAkc2RtCVd1PYSEuTU8rh3T5Tamlk_JSrE", "standard")
 
+setwd("../data")
+#setwd("G:/Team Drives/APHIS  Private Data/Pathways")
+#setwd("I:/Ongoing Team Projects/Exclusion Support/AQI Cooperative Agreement")
+F280 <- fread("/media/Kellyn/F20E17B40E177139/kpmontgo@ncsu.edu/Research/APHIS_Pathways/analysis/F280_CF_FY2014_to_FY2018.csv")
 
-#F280_clean[FY==2017]
-#poe <- unique(F280$LOCATION)
-#write.csv(poe, "G:/My Drive/Coursework/GIS 714/Project/POE.csv")
+# Code used to geocode origin countries
+# origin_countries <- as.data.frame(unique(F280$ORIGIN_NM))
+# names(origin_countries) <- "ORIGIN_NM"
+# origin_geocode <- geocode(as.character(origin_countries))
+# origin_countries$latitude_origin <- origin_geocode$lat
+# origin_countries$longitude_origin <- origin_geocode$lon
+# write.csv(origin_countries, "origin_geocoded.csv")
 
-# If grouping POE by city:
-# poe <- read.csv("Q:/My Drive/Coursework/GIS 714/Project/POE_geocoded.csv")
-# poe_cities <- as.data.frame(unique(poe$geocode))
-# names(poe_cities) <- "poe_city"
-# poe_cities$target_id <- c(23:114)
-# poe <- merge(poe, poe_cities, by.x = "geocode", by.y="poe_city")
+# Code used to geocode subregions (Subregion grouping source: https://www.crwflags.com/fotw/flags/cou_reg.html)
+# regions_lookup <- fread("/media/Kellyn/F20E17B40E177139/kpmontgo@ncsu.edu/Research/APHIS_Pathways/analysis/region_lookup.csv")
+# subregion_geocode <- geocode(as.character(regions_lookup$Subregion))
+# regions_lookup$latitude_region <- subregion_geocode$lat
+# regions_lookup$longitude_region <- subregion_geocode$lon
+# write.csv(regions_lookup, "/media/Kellyn/F20E17B40E177139/kpmontgo@ncsu.edu/Research/APHIS_Pathways/analysis/subregions_geocoded.csv")
+
+regions_lookup <- read.csv("subregions_geocoded.csv")
+subregions <- as.data.frame(unique(regions_lookup$Subregion))
+names(subregions) <- "Subregion"
+subregions$source_id <- c(1:23)
+regions_lookup <- join(regions_lookup, subregions, by = "Subregion")
+
+# Code used to geocode POE cities
 #poe <-unite(poe, geocode, c('City', 'State'), sep = ", ", remove = F)
 #poe_geocode <- geocode(poe$geocode)
 #poe$latitude_poe <- poe_geocode$lat
 #poe$longitude_poe <- poe_geocode$lon
 #write.csv(poe, "G:/My Drive/Coursework/GIS 714/Project/POE_geocoded.csv")
 
-origin_outcome_quant <- F280_clean[,.(sum(QUANTITY)),by=.(ORIGIN_NM, Outcome)]
-poe_state_outcome_quant <- F280_clean[,.(sum(QUANTITY)),by=.(State, Outcome)]
-names(poe_state_outcome_quant) <- c("node", "outcome","Stems")
-names(origin_outcome_quant) <- c("node", "outcome","Stems")
-nodes_outcome_quant <- rbind(poe_state_outcome_quant, origin_outcome_quant)
-write.csv(nodes_outcome_quant, "G:/My Drive/Coursework/GIS 714/Project/nodes_outcome_quant.csv")
+# If grouping POE by city:
+poe <- read.csv("POE_geocoded.csv")
+poe_cities <- as.data.frame(unique(poe$geocode))
+names(poe_cities) <- "poe_city"
+poe_cities$target_id <- c(23:114)
+poe <- merge(poe, poe_cities, by.x = "geocode", by.y="poe_city")
+
+
+# Code for node visualizations
+# origin_outcome_quant <- F280_clean[,.(sum(QUANTITY)),by=.(ORIGIN_NM, Outcome)]
+# poe_state_outcome_quant <- F280_clean[,.(sum(QUANTITY)),by=.(State, Outcome)]
+# names(poe_state_outcome_quant) <- c("node", "outcome","Stems")
+# names(origin_outcome_quant) <- c("node", "outcome","Stems")
+# nodes_outcome_quant <- rbind(poe_state_outcome_quant, origin_outcome_quant)
+# write.csv(nodes_outcome_quant, "G:/My Drive/Coursework/GIS 714/Project/nodes_outcome_quant.csv")
 
 # If grouping POE by state:
-F280_clean$State <- unlist(map(strsplit(F280_clean$LOCATION, " "), 1))
-State <- as.character(unique(F280_clean$State))
-states_geocode <- geocode(State)
-State <- as.data.frame(State)
-State$latitude_poe <- states_geocode$lat
-State$longitude_poe <- states_geocode$lon
-State$target_id <- c(23:57)
-F280_clean <- join(F280_clean, State, by = "State")
-State$group <- "target"
+# F280_clean$State <- unlist(map(strsplit(F280_clean$LOCATION, " "), 1))
+# State <- as.character(unique(F280_clean$State))
+# states_geocode <- geocode(State)
+# State <- as.data.frame(State)
+# State$latitude_poe <- states_geocode$lat
+# State$longitude_poe <- states_geocode$lon
+# State$target_id <- c(23:57)
+# F280_clean <- join(F280_clean, State, by = "State")
+# State$group <- "target"
+# 
+# names(State) <- c("Name", "lat", "lon", "id", "group")
+# node_poe <- State
 
 
 # Create node table with lat/lon
@@ -48,10 +82,6 @@ node_poe <- join(poe_cities,poe, by="target_id", match = "first")
 node_poe <- node_poe[, c(2,8, 9, 1)]
 names(node_poe) <- c("Name", "lat", "lon", "id")
 node_poe$group <- "target"
-
-#If grouping POE by state:
-names(State) <- c("Name", "lat", "lon", "id", "group")
-node_poe <- State
 
 nodes <- rbind(node_regions, node_poe)
 write.csv(nodes, "Q:/My Drive/Coursework/GIS 714/Project/nodes.csv")

@@ -1,0 +1,120 @@
+"","LOCATION","geocode","State","City","latitude_poe","longitude_poe"
+"1","AK Anchorage CBP","Anchorage, AK","AK","Anchorage",61.2180556,-149.9002778
+"2","AK Anchorage Express CBP Fed Ex","Anchorage, AK","AK","Anchorage",61.2180556,-149.9002778
+"3","AK Anchorage Express CBP UPS","Anchorage, AK","AK","Anchorage",61.2180556,-149.9002778
+"4","AZ Douglas CBP","Douglas, AZ","AZ","Douglas",31.3445471,-109.5453447
+"5","AZ Naco CBP","Naco, AZ","AZ","Naco",31.3353801,-109.9481297
+"6","AZ Nogales CBP","Nogales, AZ","AZ","Nogales",31.3403775,-110.9342532
+"7","AZ Phoenix CBP","Phoenix, AZ","AZ","Phoenix",33.4483771,-112.0740373
+"8","AZ San Luis CBP","San Luis, AZ","AZ","San Luis",32.4869996,-114.7821796
+"9","CA Calexico CBP East","Calexico, CA","CA","Calexico",32.6789476,-115.4988834
+"10","CA Long Beach CBP","Long Beach, CA","CA","Long Beach",33.7700504,-118.1937395
+"11","CA Los Angeles CBP","Los Angeles, CA","CA","Los Angeles",34.0522342,-118.2436849
+"12","CA Los Angeles Sea CBP","Los Angeles, CA","CA","Los Angeles",34.0522342,-118.2436849
+"13","CA Oakland CBP","Oakland, CA","CA","Oakland",37.8043637,-122.2711137
+"14","CA Oakland Fed Ex CBP","Oakland, CA","CA","Oakland",37.8043637,-122.2711137
+"15","CA Ontario CBP","Ontario, CA","CA","Ontario",34.0633443,-117.6508876
+"16","CA Otay Mesa CBP","Otay Mesa, CA","CA","Otay Mesa",32.5594732,-116.9734685
+"17","CA Port Hueneme CBP","Port Hueneme, CA","CA","Port Hueneme",34.1477829,-119.1951074
+"18","CA San Diego CBP","San Diego, CA","CA","San Diego",32.715738,-117.1610838
+"19","CA San Francisco CBP","San Francisco, CA","CA","San Francisco",37.7749295,-122.4194155
+"20","CA San Jose CBP","San Jose, CA","CA","San Jose",37.3382082,-121.8863286
+"21","DE Wilmington CBP","Wilmington, DE","DE","Wilmington",39.744655,-75.5483909
+"22","FL Cape Canaveral CBP","Cape Canaveral, FL","FL","Cape Canaveral",28.3922182,-80.6077132
+"23","FL Ft. Lauderdale CBP","Ft. Lauderdale, FL","FL","Ft. Lauderdale",26.1224386,-80.1373174
+"24","FL Jacksonville CBP","Jacksonville, FL","FL","Jacksonville",30.3321838,-81.655651
+"25","FL Miami Air Cargo CBP","Miami, FL","FL","Miami",25.7616798,-80.1917902
+"26","FL Miami Air CBP","Miami, FL","FL","Miami",25.7616798,-80.1917902
+"27","FL Miami Sea CBP","Miami, FL","FL","Miami",25.7616798,-80.1917902
+"28","FL Miami UPS  CBP","Miami, FL","FL","Miami",25.7616798,-80.1917902
+"29","FL Orlando CBP","Orlando, FL","FL","Orlando",28.5383355,-81.3792365
+"30","FL Port Everglades CBP","Port Everglades, FL","FL","Port Everglades",26.0850697,-80.116658
+"31","FL Port Manatee CBP","Port Manatee, FL","FL","Port Manatee",27.6336443,-82.5614858
+"32","FL Tampa CBP","Tampa, FL","FL","Tampa",27.950575,-82.4571776
+"33","FL West Palm Beach CBP","West Palm Beach, FL","FL","West Palm Beach",26.7153424,-80.0533746
+"34","GA Atlanta CBP","Atlanta, GA","GA","Atlanta",33.7489954,-84.3879824
+"35","HI Honolulu CBP","Honolulu, HI","HI","Honolulu",21.3069444,-157.8583333
+"36","HI Honolulu Sea CBP","Honolulu, HI","HI","Honolulu",21.3069444,-157.8583333
+"37","ID Eastport CBP","Eastport, ID","ID","Eastport",48.9993981,-116.1813115
+"38","IL Chicago CBP","Chicago, IL","IL","Chicago",41.8781136,-87.6297982
+"39","IN Indianapolis Fed Ex CBP","Indianapolis, IN","IN","Indianapolis",39.768403,-86.158068
+"40","KY Louisville CBP","Louisville, KY","KY","Louisville",38.2526647,-85.7584557
+"41","KY Louisville UPS CBP","Louisville, KY","KY","Louisville",38.2526647,-85.7584557
+"42","LA New Orleans Gulf CMC CBP","New Orleans, LA","LA","New Orleans",29.9510658,-90.0715323
+"43","MA Boston CBP","Boston, MA","MA","Boston",42.3600825,-71.0588801
+"44","MA Boston Sea CBP","Boston, MA","MA","Boston",42.3600825,-71.0588801
+"45","ME Calais CBP","Calais, ME","ME","Calais",45.1889633,-67.2786038
+"46","ME Houlton CBP","Houlton, ME","ME","Houlton",46.1261806,-67.8402316
+"47","ME Van Buren CBP","Van Buren, ME","ME","Van Buren",47.1572963,-67.9353035
+"48","MI Detroit CBP","Detroit, MI","MI","Detroit",42.331427,-83.0457538
+"49","MI Port Huron CBP","Port Huron, MI","MI","Port Huron",42.9708634,-82.4249142
+"50","MI Romulus CBP","Romulus, MI","MI","Romulus",42.2222614,-83.3965994
+"51","MI Sault Sainte Marie CBP","Sault Sainte Marie, MI","MI","Sault Sainte Marie",46.4977115,-84.3475876
+"52","MN International Falls CBP","International Falls, MN","MN","International Falls",NA,NA
+"53","MN Minneapolis CBP","Minneapolis, MN","MN","Minneapolis",44.977753,-93.2650108
+"54","MT Roosville CBP","Roosville, MT","MT","Roosville",48.8799647,-115.0535001
+"55","MT Sweetgrass CBP","Sweetgrass, MT","MT","Sweetgrass",48.9961099,-111.9675751
+"56","NC Charlotte CBP","Charlotte, NC","NC","Charlotte",35.2270869,-80.8431267
+"57","NC Raleigh CBP","Raleigh, NC","NC","Raleigh",35.7795897,-78.6381787
+"58","ND Dunseith CBP","Dunseith, ND","ND","Dunseith",48.8130569,-100.0609678
+"59","ND Pembina CBP","Pembina, ND","ND","Pembina",48.9663765,-97.2436761
+"60","ND Portal CBP","Portal, ND","ND","Portal",48.9958637,-102.5496127
+"61","NJ Newark Air Cargo CBP","Newark, NJ","NJ","Newark",40.735657,-74.1723667
+"62","NJ Newark CBP","Newark, NJ","NJ","Newark",40.735657,-74.1723667
+"63","NJ Newark Fed Ex CBP","Newark, NJ","NJ","Newark",40.735657,-74.1723667
+"64","NJ Newark Sea CBP","Newark, NJ","NJ","Newark",40.735657,-74.1723667
+"65","NM Santa Teresa CBP","Santa Teresa, NM","NM","Santa Teresa",31.8559384,-106.6391577
+"66","NV Las Vegas CBP","Las Vegas, NV","NV","Las Vegas",36.1699412,-115.1398296
+"67","NY Alexandria Bay CBP","Alexandria Bay, NY","NY","Alexandria Bay",44.3358836,-75.9177309
+"68","NY Brooklyn CBP","Brooklyn, NY","NY","Brooklyn",40.6781784,-73.9441579
+"69","NY Buffalo CBP","Buffalo, NY","NY","Buffalo",42.8864468,-78.8783689
+"70","NY Buffalo CBP Lewiston Bridge","Buffalo, NY","NY","Buffalo",42.8864468,-78.8783689
+"71","NY Buffalo CBP Peace Bridge","Buffalo, NY","NY","Buffalo",42.8864468,-78.8783689
+"72","NY Champlain CBP","Champlain, NY","NY","Champlain",44.9864273,-73.4465251
+"73","NY JFK Air Cargo CBP","New York, NY","NY","New York",40.7127753,-74.0059728
+"74","NY JFK CBP","New York, NY","NY","New York",40.7127753,-74.0059728
+"75","OH Cincinnati CBP","Cincinnati, OH","OH","Cincinnati",39.1031182,-84.5120196
+"76","OH Cincinnati DHL CBP","Cincinnati, OH","OH","Cincinnati",39.1031182,-84.5120196
+"77","OR Portland CBP","Portland, OR","OR","Portland",45.5154586,-122.6793461
+"78","OR Portland Sea CBP","Portland, OR","OR","Portland",45.5154586,-122.6793461
+"79","PA Philadelphia CBP","Philadelphia, PA","PA","Philadelphia",39.9525839,-75.1652215
+"80","PA Philadelphia Sea CBP","Philadelphia, PA","PA","Philadelphia",39.9525839,-75.1652215
+"81","PR Aguadilla CBP","Aguadilla, PR","PR","Aguadilla",18.4274454,-67.1540698
+"82","PR San Juan Air CBP","San Juan, PR","PR","San Juan",18.4655394,-66.1057355
+"83","PR San Juan Sea CBP","San Juan, PR","PR","San Juan",18.4655394,-66.1057355
+"84","SC Charleston CBP","Charleston, SC","SC","Charleston",32.7764749,-79.9310512
+"85","TN Memphis Fed-X CBP","Memphis, TN","TN","Memphis",35.1495343,-90.0489801
+"86","TX Brownsville CBP","Brownsville, TX","TX","Brownsville",25.9017472,-97.4974838
+"87","TX Dallas/Ft. Worth CBP","Dallas, TX","TX","Dallas",32.7766642,-96.7969879
+"88","TX Del Rio CBP","Del Rio, TX","TX","Del Rio",29.3708857,-100.8958674
+"89","TX Eagle Pass CBP","Eagle Pass, TX","TX","Eagle Pass",28.7091433,-100.4995214
+"90","TX El Paso CBP","El Paso, TX","TX","El Paso",31.7618778,-106.4850217
+"91","TX El Paso CBP BOTA","El Paso, TX","TX","El Paso",31.7618778,-106.4850217
+"92","TX Hidalgo CBP","Hidalgo, TX","TX","Hidalgo",26.1003547,-98.2630684
+"93","TX Houston Air CBP","Houston, TX","TX","Houston",29.7604267,-95.3698028
+"94","TX Houston PIS PPQ","Houston, TX","TX","Houston",29.7604267,-95.3698028
+"95","TX Houston Sea CBP","Houston, TX","TX","Houston",29.7604267,-95.3698028
+"96","TX Laredo CBP","Laredo, TX","TX","Laredo",27.5035613,-99.5075519
+"97","TX Laredo CBP Colombia","Laredo, TX","TX","Laredo",27.5035613,-99.5075519
+"98","TX Los Indios CBP","Los Indios, TX","TX","Los Indios",26.0492445,-97.7449935
+"99","TX Pharr CBP","Pharr, TX","TX","Pharr",26.1947962,-98.1836216
+"100","TX Presidio CBP","Presidio, TX","TX","Presidio",29.5607383,-104.3721465
+"101","TX Progreso CBP","Progreso, TX","TX","Progreso",26.0922991,-97.9572242
+"102","TX Rio Grande City CBP","Rio Grande, TX","TX","Rio Grande",26.3797874,-98.8203046
+"103","TX Roma CBP","Roma, TX","TX","Roma",26.4088523,-99.0156554
+"104","VA Dulles CBP","Dulles, VA","VA","Dulles",38.9624899,-77.4380485
+"105","VA Norfolk CBP","Norfolk, VA","VA","Norfolk",36.8507689,-76.2858726
+"106","VI St. Croix CBP","St. Croix, VI","VI","St. Croix",17.7245968,-64.8347992
+"107","VI St. Thomas CBP","St. Thomas, VI","VI","St. Thomas",18.3380965,-64.8940946
+"108","VT Derby Line CBP","Derby Line, VT","VT","Derby Line",45.002228,-72.101166
+"109","VT Highgate Springs CBP","Highgate Springs, VT","VT","Highgate Springs",44.9740065,-73.105042
+"110","WA Blaine CBP","Blaine, WA","WA","Blaine",48.993723,-122.7471191
+"111","WA Blaine CBP Pacific Highway","Blaine, WA","WA","Blaine",48.993723,-122.7471191
+"112","WA Lynden CBP","Lynden, WA","WA","Lynden",48.9428018,-122.4529469
+"113","WA Port Angeles CBP","Port Angeles, WA","WA","Port Angeles",48.118146,-123.4307413
+"114","WA Seattle Air CBP","Seattle, WA","WA","Seattle",47.6062095,-122.3320708
+"115","WA Seattle Sea CBP","Seattle, WA","WA","Seattle",47.6062095,-122.3320708
+"116","WA Seattle Sea CBP Tacoma","Seattle, WA","WA","Seattle",47.6062095,-122.3320708
+"117","WA Spokane CBP","Spokane, WA","WA","Spokane",47.6587802,-117.4260465
+"118","WA Sumas CBP","Sumas, WA","WA","Sumas",49.0001217,-122.2648752
+"119","WI Milwaukee CBP","Milwaukee, WI","WI","Milwaukee",43.0389025,-87.9064736
