@@ -198,8 +198,6 @@ F280[LOCATION==""]$NOTES <- "Missing LOCATION"
 F280[COMMODITY==""]$NOTES <- "Missing COMMODITY"
 F280[ORIGIN_NM==""]$NOTES <- "Missing ORIGIN_NM"
 
-
-
 # Change US origin to correct origin (based on guidance from APHIS). All remaining USA origin changed to clean=F
 F280[ORIGIN_NM=="United States of America"][LOCATION=="MI Port Huron CBP"]$NOTES <- "Changed origin from US to Canada. Port Huron POE."
 F280[ORIGIN_NM=="United States of America"][COMMODITY=="Aspidistra"]$NOTES <- "Changed origin from US to Netherlands. Aspidistra."
