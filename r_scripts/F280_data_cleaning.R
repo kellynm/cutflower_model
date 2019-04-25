@@ -218,11 +218,51 @@ F280_clean$Class <- as.factor(F280_clean$Class)
 write.csv(F280_clean, "/media/Kellyn/F20E17B40E177139/kpmontgo@ncsu.edu/Research/APHIS_Pathways/analysis/F280_clean.csv")
 
 # Sample data
-# F280_sample <- sample_n(F280_clean, 100000)
-# F280_sample <- separate(data = F280_sample, col = REPORT_DT, into = c("DATE", "TIME"), sep = " ")
-# F280_sample$DATE <- as.Date(gsub('-', '/', F280_sample$DATE))
-# F280_sample <-F280_sample %>%
-#   mutate(DATE = as_datetime(format(DATE,"2017-%m-%d")))
-# F280_sample$FY <- as.character(F280_sample$FY)
-# 
-# write.csv(F280_sample, "/home/kellyn/Desktop/pathways/F280_sample.csv")
+
+# x - the original vector, matrix or data.frame.
+# y - a vector, what to balance.
+# p - proportion of x to choose.
+
+
+createSets <- function(x, y, p){
+  nr <- NROW(x)
+  size <- (nr * p) %/% length(unique(y))
+  idx <- lapply(split(seq_len(nr), y), function(.x) sample(.x, size, replace=T))
+  unlist(idx)
+}
+ind <- createSets(F280_clean,F280_clean$Outcome, 0.1)
+balanced_outcome_sample <- F280_clean[ind,]
+summary(balanced_outcome_sample)
+
+F280_2018 <- F280_clean[FY=="2018"]
+F280_2018[,sum(as.numeric(QUANTITY))]
+
+write.csv(F280_2018, "/media/Kellyn/F20E17B40E177139/kpmontgo@ncsu.edu/Research/APHIS_Pathways/analysis/F280_2018.csv")
+
+library(dplyr)
+library(lubridate)
+library(ggplot2)
+
+F280_sample <- sample_n(F280_clean, 10000)
+F280_sample <- separate(data = F280_sample, col = REPORT_DT, into = c("DATE", "TIME"), sep = " ")
+F280_sample$DATE <- as.Date(gsub('-', '/', F280_sample$DATE))
+F280_sample <-F280_sample %>%
+  mutate(DATE = as_datetime(format(DATE,"2017-%m-%d")))
+F280_sample$FY <- as.character(F280_sample$FY)
+
+write.csv(F280_sample, "/home/kellyn/Desktop/pathways/F280_sample.csv")
+
+F280_sample$DATE <- as.Date(F280_sample$DATE)
+
+plot_template_F280 <- ggplot(F280_sample, aes(y=as.numeric(FY))) +
+  geom_hline(yintercept = seq(2014, 2018, by = 1), color = "gray", size = 0.05) +
+  scale_size_area(max_size = 10, guide = FALSE) +
+  scale_x_date(date_breaks = "months", date_labels = "%b") +
+  scale_y_reverse(limits = c(2018,2014)) +
+  xlab("") +
+  ylab("") 
+
+F280_bubble<- plot_template_F280 +
+  geom_point(aes(size = QUANTITY, x = DATE, color = Subregion),alpha=0.5)
+
+F280_bubble
