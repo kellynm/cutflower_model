@@ -12,6 +12,43 @@ setwd("../data")
 #setwd("I:/Ongoing Team Projects/Exclusion Support/AQI Cooperative Agreement")
 F280 <- fread("/media/Kellyn/F20E17B40E177139/kpmontgo@ncsu.edu/Research/APHIS_Pathways/analysis/F280_CF_FY2014_to_FY2018.csv")
 
+
+#Node list for Gephi network graph:
+origin_geocoded <- fread("origin_geocoded.csv")
+origin_geocoded <- origin_geocoded[, c(2:4)]
+origin_geocoded$id <- c(1:162)
+origin_geocoded$group <- "source"
+names(origin_geocoded) <- c("name", "latitude", "longitude", "id", "group")
+
+poe <- read.csv("POE_geocoded.csv")
+poe_state <- unique(poe$State)
+poe_state_geocode <- geocode(as.character(poe_state))
+poe_state <- as.data.frame(poe_state)
+poe_state$latitude_poe <- poe_state_geocode$lat
+poe_state$longitude_poe <- poe_state_geocode$lon
+poe_state$id <- c(163:197)
+poe_state$group <- "target"
+names(poe_state) <- c("name", "latitude", "longitude", "id", "group")
+
+nodes <- rbind(origin_geocoded, poe_state)
+write.csv(nodes, "Q:/My Drive/Coursework/GIS 714/Project/Network/nodes_state_country.csv")
+
+# Count edges for Gephi network
+
+poe_state <- poe_state[,c(1,4)]
+names(poe_state) <- c("name", "target_id")
+origin_geocoded <- origin_geocoded[,c(1,4)]
+names(origin_geocoded) <- c("name", "source_id")
+
+F280_network <- merge(F280_clean, poe_state, by.x = "State", by.y = "name")
+F280_network <- merge(F280_network, origin_geocoded, by.x = "ORIGIN_NM", by.y = "name")
+
+edges_quant_2018 <- F280_network[FY==2018, .(total = sum(QUANTITY)),by=.(target_id, source_id)]
+edges_count_2018 <- F280_network[FY==2018, .(.N), by=.(target_id, source_id)]
+
+write.csv(edges_quant_2018,"Q:/My Drive/Coursework/GIS 714/Project/Network/edges_quant_2018.csv" )
+write.csv(edges_count_2018,"Q:/My Drive/Coursework/GIS 714/Project/Network/edges_count_2018.csv" )
+
 # Code used to geocode origin countries
 # origin_countries <- as.data.frame(unique(F280$ORIGIN_NM))
 # names(origin_countries) <- "ORIGIN_NM"
