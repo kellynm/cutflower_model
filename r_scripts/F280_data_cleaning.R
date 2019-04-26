@@ -217,20 +217,7 @@ F280_clean$Class <- as.factor(F280_clean$Class)
 #write.csv(F280_clean, "G:/Team Drives/APHIS  Private Data/Pathways/F280_clean.csv")
 
 # Sample data
-
-# x - the original vector, matrix or data.frame.
-# y - a vector, what to balance.
-# p - proportion of x to choose.
-
-createSets <- function(x, y, p){
-  nr <- NROW(x)
-  size <- (nr * p) %/% length(unique(y))
-  idx <- lapply(split(seq_len(nr), y), function(.x) sample(.x, size, replace=T))
-  unlist(idx)
-}
-ind <- createSets(F280_clean,F280_clean$Outcome, 0.1)
-balanced_outcome_sample <- F280_clean[ind,]
-summary(balanced_outcome_sample)
+F280_clean <- fread("Q:/My Drive/Research/APHIS_Pathways/analysis/F280_clean.csv")
 
 F280_2018 <- F280_clean[FY=="2018"]
 F280_2018[MON == 7,sum(as.numeric(QUANTITY))]
@@ -285,3 +272,10 @@ F280_bubble
 ggplot(data=F280_2018, aes(x=DATE, fill=Outcome)) + geom_bar(stat="count") + scale_x_date(date_breaks = "months", date_labels = "%b") +theme(legend.position = "bottom",
     legend.box = "vertical") +scale_fill_manual(values=c("red", "pink", "dodgerblue", "yellow", "lightgreen"),  labels = c("Actionable Pest","Precautionary Action", "Product Contaminated", "Product
           Prohibited", "No Pest"))+ xlab("Date") + ylab("Count") + ggtitle("2018 Cut Flower Shipment Inspection Outcomes")
+
+F280_2018 <- transform( F280_2018,
+                       Order = ordered(Order, levels = names( sort(-table(Order)))))
+
+ggplot(data=F280_2018, aes(x=Order, fill=Outcome)) + geom_bar(stat="count")+theme(legend.position = "bottom",
+                                                                                                                                             legend.box = "vertical") +scale_fill_manual(values=c("red", "pink", "dodgerblue", "yellow", "lightgreen"),  labels = c("Actionable Pest","Precautionary Action", "Product Contaminated", "Product
+          Prohibited", "No Pest"))+ xlab("Order") + ylab("Count") + ggtitle("2018 Cut Flower Shipment Inspection Outcomes by Flower Order")+theme(axis.text.x = element_text(angle = 90, hjust = 1))
