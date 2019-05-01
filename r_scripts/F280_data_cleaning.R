@@ -16,6 +16,14 @@ F280$CLEAN <- "TRUE"
 # Add notes column to document reason for omitting records, or what has been changed
 F280$NOTES <- ""
 
+# Change US origin to correct origin (based on guidance from APHIS). All remaining USA origin changed to clean=F
+F280[ORIGIN_NM=="United States of America"][LOCATION=="MI Port Huron CBP"]$NOTES <- "Changed origin from US to Canada. Port Huron POE."
+F280[ORIGIN_NM=="United States of America"][COMMODITY=="Aspidistra"]$NOTES <- "Changed origin from US to Netherlands. Aspidistra."
+F280[ORIGIN_NM=="United States of America"][LOCATION=="MI Port Huron CBP"]$ORIGIN_NM <- "Canada"
+F280[ORIGIN_NM=="United States of America"][COMMODITY=="Aspidistra"]$ORIGIN_NM <- "Netherlands"
+F280[ORIGIN_NM=="United States of America"]$NOTES <- "USA origin"
+F280[ORIGIN_NM=="United States of America"]$CLEAN <- "FALSE"
+
 # Add POE City and State
 poe <- read.csv("POE_geocoded.csv")
 poe <- poe[,c(2,4,5,6,7)]
@@ -35,8 +43,8 @@ regions <- regions[, c(2:6)]
 F280 <- merge(F280, regions, by='ORIGIN_NM', all.x = T)
 
 # For low frequency origin countries, use subregion as origin for model
-origin_ct <- as.data.table(count(F280$ORIGIN_NM))
-origin_low_freq <- origin_ct[freq<100]$x
+origin_ct <- as.data.table(count(F280, ORIGIN_NM))
+origin_low_freq <- origin_ct[n<1200]$ORIGIN_NM # This results in 52 categories for Random Forest
 
 F280$Origin_Model <- ""
 F280[ORIGIN_NM %in% origin_low_freq]$Origin_Model <- F280[ORIGIN_NM %in% origin_low_freq]$Subregion
@@ -97,9 +105,8 @@ familyDF <- ldply(jsonFamily, data.frame, stringsAsFactors = F)
 names(familyDF) <- c("Family", "Genus")
 
 # Omit duplicate genus synonym names
-genusCt <- count(familyDF$Genus)
-genusCt$x <- as.character(genusCt$x)
-dupGenus <- as.data.table(genusCt)[freq > 1,]
+genusCt <- count(familyDF, Genus)
+dupGenus <- as.data.table(genusCt)[n > 1,]
 
 familyDF_noDup <- familyDF[!familyDF$Genus %in% dupGenus$x,]
 
@@ -108,8 +115,8 @@ F280_merge <- merge(F280, familyDF_noDup, by.x="COMMODITY", by.y = "Genus", all.
 
 # Export list of genuses without family match with at least 300 records and manually specify family
 missingGenus <- F280_merge[is.na(Family)][CLEAN=="TRUE"]
-countGenus <- count(missingGenus$COMMODITY)
-addGenus <- countGenus[countGenus$freq > 300,]
+countGenus <- count(missingGenus, COMMODITY)
+addGenus <- countGenus[countGenus$n > 300,]
 names(addGenus) <- c("Genus", "freq")
 #write.csv(addGenus, "addGenus.csv")
 
@@ -146,9 +153,13 @@ F280[is.na(Family)]$Family <- ""
 F280[Family == ""][CLEAN=="TRUE"]$NOTES <- "Unmatched Genus"
 F280[Family == ""]$CLEAN <- "FALSE"
 
-orderCount <- count(F280$Order)
+orderCount <- as.data.table(count(F280, Order))
 names(orderCount) <- c("Order", "Count")
 orderCount[order(-orderCount$Count),]
+order_low_freq <- orderCount[Count<50]$Order # This results in 49 categories for Random Forest
+
+F280[Order %in% order_low_freq]$CLEAN <- "FALSE"
+F280[Order %in% order_low_freq]$NOTES <- "Low freq order"
 
 # Add columns for grouped disposition codes
 disp_lookup <- read.csv("disp_group_lookup.csv")
@@ -197,14 +208,6 @@ F280[LOCATION==""]$NOTES <- "Missing LOCATION"
 F280[COMMODITY==""]$NOTES <- "Missing COMMODITY"
 F280[ORIGIN_NM==""]$NOTES <- "Missing ORIGIN_NM"
 
-# Change US origin to correct origin (based on guidance from APHIS). All remaining USA origin changed to clean=F
-F280[ORIGIN_NM=="United States of America"][LOCATION=="MI Port Huron CBP"]$NOTES <- "Changed origin from US to Canada. Port Huron POE."
-F280[ORIGIN_NM=="United States of America"][COMMODITY=="Aspidistra"]$NOTES <- "Changed origin from US to Netherlands. Aspidistra."
-F280[ORIGIN_NM=="United States of America"][LOCATION=="MI Port Huron CBP"]$ORIGIN_NM <- "Canada"
-F280[ORIGIN_NM=="United States of America"][COMMODITY=="Aspidistra"]$ORIGIN_NM <- "Netherlands"
-F280[ORIGIN_NM=="United States of America"]$NOTES <- "USA origin"
-F280[ORIGIN_NM=="United States of America"]$CLEAN <- "FALSE"
-
 # Remove records with origin=destination, suspicious
 F280[ORIGIN_NM == DEST_NM]$NOTES <- "Origin=destination"
 F280[ORIGIN_NM == DEST_NM]$CLEAN <- "FALSE"
@@ -214,33 +217,36 @@ F280_clean$PATHWAY <- as.factor(F280_clean$PATHWAY)
 F280_clean$Order <- as.factor(F280_clean$Order)
 F280_clean$Class <- as.factor(F280_clean$Class)
 
-#write.csv(F280_clean, "G:/Team Drives/APHIS  Private Data/Pathways/F280_clean.csv")
+write.csv(F280_clean, "Q:/Team Drives/APHIS  Private Data/Pathways/F280_clean.csv")
 
 # Sample data
-F280_clean <- fread("Q:/My Drive/Research/APHIS_Pathways/analysis/F280_clean.csv")
+F280_clean <- fread("Q:/Team Drives/APHIS  Private Data/Pathways/F280_clean.csv")
 
-F280_2018 <- F280_clean[FY=="2018"]
-F280_2018[MON == 7,sum(as.numeric(QUANTITY))]
+#F280_2018 <- F280_clean[FY=="2018"]
+F280_clean[MON == 7,sum(as.numeric(QUANTITY))]
 
-F280_2018 <- separate(data = F280_2018, col = REPORT_DT, into = c("DATE", "TIME"), sep = " ")
-F280_2018$DATE <- as.Date(gsub('-', '/', F280_2018$DATE))
-F280_2018 <-F280_2018 %>%
+library(lubridate)
+
+F280_clean <- separate(data = F280_clean, col = REPORT_DT, into = c("DATE", "TIME"), sep = " ")
+F280_clean$DATE <- as.Date(gsub('-', '/', F280_clean$DATE))
+F280_clean <-F280_clean %>%
   mutate(DATE = as_datetime(format(DATE,"2017-%m-%d")))
-F280_2018$FY <- as.character(F280_2018$FY)
+F280_clean$FY <- as.character(F280_clean$FY)
 
-F280_2018$DATE <- as.Date(F280_2018$DATE)
+F280_clean$DATE <- as.Date(F280_clean$DATE)
 
 outcome_order <- c("AP", "PA", "PC", "CC", "PP", "NP")
 
 require(gdata)
-F280_2018$Outcome <- reorder.factor(F280_2018$Outcome, new.order=outcome_order)
+F280_clean$Outcome <- reorder.factor(F280_clean$Outcome, new.order=outcome_order)
 
 #write.csv(F280_2018, "G:/Team Drives/APHIS  Private Data/Pathways/F280_2018.csv")
 
 library(dplyr)
-library(lubridate)
+
 library(ggplot2)
 
+# Bubble chart
 set.seed(89)
 F280_sample <- sample_n(F280_clean, 100000)
 F280_sample <- separate(data = F280_sample, col = REPORT_DT, into = c("DATE", "TIME"), sep = " ")
@@ -251,8 +257,8 @@ F280_sample$FY <- as.character(F280_sample$FY)
 
 #write.csv(F280_sample, "/home/kellyn/Desktop/pathways/F280_sample.csv")
 
-F280_sample$DATE <- as.Date(F280_sample$DATE)
-F280_2018$DATE <- as.Date(F280_2018$DATE)
+F280_clean$DATE <- as.Date(F280_clean$DATE)
+F280_clean$DATE <- as.Date(F280_clean$DATE)
 
 plot_template_F280 <- ggplot(F280_sample, aes(y=as.numeric(FY))) +
   geom_hline(yintercept = seq(2014, 2018, by = 1), color = "gray", size = 0.05) +
@@ -269,13 +275,19 @@ F280_bubble<- plot_template_F280 +
 
 F280_bubble
 
-ggplot(data=F280_2018, aes(x=DATE, fill=Outcome)) + geom_bar(stat="count") + scale_x_date(date_breaks = "months", date_labels = "%b") +theme(legend.position = "bottom",
-    legend.box = "vertical") +scale_fill_manual(values=c("red", "pink", "dodgerblue", "yellow", "lightgreen"),  labels = c("Actionable Pest","Precautionary Action", "Product Contaminated", "Product
-          Prohibited", "No Pest"))+ xlab("Date") + ylab("Count") + ggtitle("2018 Cut Flower Shipment Inspection Outcomes")
+F280_clean <- as.data.table(F280_clean)[QUANTITY < 10000000,]
+F280_2018 <- F280_clean[FY==2018]
+F280_2018 <- droplevels(F280_2018)
 
-F280_2018 <- transform( F280_2018,
+# 2018 inspection outcomes quantity
+ggplot(data=F280_2018, aes(x=DATE, y=QUANTITY, fill=Outcome)) + geom_col() + scale_x_date(date_breaks = "months", date_labels = "%b") +theme(legend.position = "bottom",
+    legend.box = "vertical") +scale_fill_manual(values=c("red", "pink", "dodgerblue", "yellow", "lightgreen"),  labels = c("Actionable Pest","Precautionary Action", "Product Contaminated", "Product
+          Prohibited", "No Pest"))+ xlab("Date") + ylab("Quantity (stems)") + ggtitle("2018 Cut Flower Shipment Inspection Outcomes")
+
+# Inspection outcomes by order
+F280_clean <- transform( F280_clean,
                        Order = ordered(Order, levels = names( sort(-table(Order)))))
 
-ggplot(data=F280_2018, aes(x=Order, fill=Outcome)) + geom_bar(stat="count")+theme(legend.position = "bottom",
-                                                                                                                                             legend.box = "vertical") +scale_fill_manual(values=c("red", "pink", "dodgerblue", "yellow", "lightgreen"),  labels = c("Actionable Pest","Precautionary Action", "Product Contaminated", "Product
-          Prohibited", "No Pest"))+ xlab("Order") + ylab("Count") + ggtitle("2018 Cut Flower Shipment Inspection Outcomes by Flower Order")+theme(axis.text.x = element_text(angle = 90, hjust = 1))
+ggplot(data=F280_clean, aes(x=Order, fill=Outcome)) + geom_bar(stat="count")+theme(legend.position = "bottom", legend.box = "vertical") +
+    scale_fill_manual(values=c("red", "pink", "dodgerblue", "yellow", "lightgreen"),  labels = c("Actionable Pest","Precautionary Action", "Product Contaminated", "Product
+    Prohibited", "No Pest"))+ xlab("Order") + ylab("Count") + ggtitle("2014-2018 Cut Flower Shipment Inspection Outcomes by Flower Order")+theme(axis.text.x = element_text(angle = 90, hjust = 1))
