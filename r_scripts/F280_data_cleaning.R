@@ -279,6 +279,35 @@ F280_clean <- as.data.table(F280_clean)[QUANTITY < 10000000,]
 F280_2018 <- F280_clean[FY==2018]
 F280_2018 <- droplevels(F280_2018)
 
+outcomeNames <- c("No Pest", "Actionable Pest", "Precautionary", "Prohibited", "Contaminated")
+outcomeAbbv <- as.data.frame(unique(F280_2018$Outcome))
+outcomeAbbv$Outcome <- outcomeNames
+names(outcomeAbbv) <- c("abbv", "Outcome")
+
+
+F280_2018_dash <- F280_2018[, c(3, 4, 5, 6, 15, 19, 28, 30,21, 32, 33, 35, 36, 41, 44, 48)]
+F280_2018_dash <- merge(F280_2018_dash, outcomeAbbv, by.x = "Outcome", by.y = "abbv")
+F280_2018_dash <- select(F280_2018_dash, -c(Outcome))
+F280_2018_dash <- F280_2018_dash %>% rename(Outcome = Outcome.y)
+
+reg_high_freq <- as.character(F280_2018_dash[, .(.N), by = .(Subregion)][N>1000][[1]])
+poe_high_freq <- as.character(F280_2018_dash[, .(.N), by = .(State)][N>1000][[1]])
+
+tail(F280_2018_dash[Subregion == "South America"][order(QUANTITY)], 50)
+dash_flowerRegion <- F280_2018_dash[, .(total = sum(QUANTITY), .N), by = .(Subregion, Order, Outcome)][order(-N)]
+dash_flowerRegion <- dash_flowerRegion[Subregion %in% reg_high_freq]
+dash_flowerRegion[Subregion=="Australia and New Zealand"]$Subregion <- "Australia"
+dash_flowerPOE <- F280_2018_dash[, .(total = sum(QUANTITY), .N), by = .(State, Order, Outcome)][order(-N)]
+dash_flowerPOE <- dash_flowerPOE[State %in% poe_high_freq]
+dash_flowerMonth <- F280_2018_dash[, .(total = sum(QUANTITY), .N), by = .(Month, MON, Order)][order(-N)]
+dash_flowerMonth <- na.omit(dash_flowerMonth)[order(MON)]
+dash_flowerMonth <- dash_flowerMonth[N > 100]
+
+
+write.csv(dash_flowerMonth, 'Q:/Team Drives/APHIS  Private Data/Pathways/dash_flowerMonth.csv')
+write.csv(dash_flowerPOE, 'Q:/Team Drives/APHIS  Private Data/Pathways/dash_flowerPOE.csv')
+write.csv(dash_flowerRegion, 'Q:/Team Drives/APHIS  Private Data/Pathways/dash_flowerRegion.csv')
+
 # 2018 inspection outcomes quantity
 ggplot(data=F280_2018, aes(x=DATE, y=QUANTITY, fill=Outcome)) + geom_col() + scale_x_date(date_breaks = "months", date_labels = "%b") +theme(legend.position = "bottom",
     legend.box = "vertical") +scale_fill_manual(values=c("red", "pink", "dodgerblue", "yellow", "lightgreen"),  labels = c("Actionable Pest","Precautionary Action", "Product Contaminated", "Product

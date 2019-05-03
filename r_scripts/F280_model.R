@@ -1,6 +1,7 @@
 library(data.table)
 library(nnet)
 library(rfUtilities)
+library(dplyr)
 
 F280_clean <- fread("Q:/Team Drives/APHIS  Private Data/Pathways/F280_clean.csv", stringsAsFactors = T)
 F280_model <- F280_clean[!Outcome == "CC"]
@@ -13,6 +14,9 @@ F280_model[Protocol==""]$Protocol <- "Don't Inspect"
 F280_model$Protocol <- as.factor(F280_model$Protocol)
 F280_model <- na.omit(F280_model)
 F280_model <- droplevels(F280_model)
+
+F280_model_calib <- F280_model[!FY==2018]
+F280_model_test <- F280_model[FY==2018]
 
 # Summarize data
 count(F280_model, Outcome)
@@ -35,11 +39,17 @@ createSets <- function(x, y, p){
   idx <- lapply(split(seq_len(nr), y), function(.x) sample(.x, size, replace=T))
   unlist(idx)
 }
-ind <- createSets(F280_model,F280_model$Outcome, 0.1)
-balanced_outcome_sample <- F280_model[ind,]
+ind <- createSets(F280_model_calib,F280_model_calib$Outcome, 0.01)
+balanced_outcome_sample <- F280_model_calib[ind,]
 summary(balanced_outcome_sample)
 balanced_outcome_sample <- na.omit(balanced_outcome_sample)
 summary(balanced_outcome_sample)
+
+ind <- createSets(F280_model_calib,F280_model_calib$Protocol, 0.04)
+balanced_protocol_sample <- F280_model_calib[ind,]
+summary(balanced_protocol_sample)
+balanced_protocol_sample <- na.omit(balanced_protocol_sample)
+summary(balanced_protocol_sample)
 
 # ANN
 set.seed(8)
@@ -106,13 +116,18 @@ ann_binary_2018[actual==1]
 
 # Random forest
 
+library(randomForest)
+library(reprtree)
+
 rf_F280 <- randomForest(Outcome ~ Origin_Model+QUANTITY+State+Month+avg_temp+avg_precip+Order, data=balanced_outcome_sample, importance=T, do.trace = T)
 varImpPlot(rf_F280)
 rf_F280
-confusion_rf <- as.table(rf_F280$confusion)[, 1:2]
+confusion_rf <- as.table(rf_F280$confusion)[, 1:5]
 accuracy(confusion_rf)
 
-pred_outcome_rf <- predict(rf_F280, F280_model[FY==2018], type = "prob") # predict the outcome
+reprtree:::plot.getTree(rf_F280)
+
+pred_outcome_rf <- predict(rf_F280, F280_model_test, type = "prob") # predict the outcome
 outcome_prob_2018 <- as.data.table(pred_outcome_rf)
 outcome_prob_2018$actual <- as.integer(F280_model[FY==2018]$Outcome)
 outcome_prob_2018$decision <- ""
@@ -123,6 +138,15 @@ outcome_prob_2018[actual==decision][actual==2] #+/+ Right decision to not inspec
 outcome_prob_2018[actual!=decision][actual==2] #-/+ Wrong decision to inspect, status quo
 outcome_prob_2018[actual!=decision][!actual==2] #+/- Wrong decision not to inspect, missed bad shipments
 outcome_prob_2018[!actual==2]
+
+
+rf_F280_binary <- randomForest(Protocol ~ Origin_Model+QUANTITY+State+Month+avg_temp+avg_precip+Order, data=balanced_protocol_sample, importance=T, do.trace = T)
+varImpPlot(rf_F280_binary)
+rf_F280_binary
+confusion_rf_binary <- as.table(rf_F280_binary$confusion)[, 1:2]
+accuracy(confusion_rf_binary)
+
+reprtree:::plot.getTree(rf_F280_binary, k=3, depth=4)
 
 pred_binary_rf <- predict(rf_binary, F280_model[FY==2018], type = "class") # predict the outcome
 outcome_prob_2018 <- as.data.table(pred_outcome)
