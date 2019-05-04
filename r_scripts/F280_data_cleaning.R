@@ -288,7 +288,7 @@ names(outcomeAbbv) <- c("abbv", "Outcome")
 F280_2018_dash <- F280_2018[, c(3, 4, 5, 6, 15, 19, 28, 30,21, 32, 33, 35, 36, 41, 44, 48)]
 F280_2018_dash <- merge(F280_2018_dash, outcomeAbbv, by.x = "Outcome", by.y = "abbv")
 F280_2018_dash <- select(F280_2018_dash, -c(Outcome))
-F280_2018_dash <- F280_2018_dash %>% rename(Outcome = Outcome.y)
+F280_2018_dash <- dplyr::rename(F280_2018_dash, Outcome = Outcome.y)
 
 reg_high_freq <- as.character(F280_2018_dash[, .(.N), by = .(Subregion)][N>1000][[1]])
 poe_high_freq <- as.character(F280_2018_dash[, .(.N), by = .(State)][N>1000][[1]])
@@ -303,7 +303,14 @@ dash_flowerMonth <- F280_2018_dash[, .(total = sum(QUANTITY), .N), by = .(Month,
 dash_flowerMonth <- na.omit(dash_flowerMonth)[order(MON)]
 dash_flowerMonth <- dash_flowerMonth[N > 100]
 
+dash_flowerOriginGeo <- F280_2018_dash[, .(total = sum(QUANTITY), .N), by = .(ORIGIN_NM, Order)][order(-N)]
+dash_flowerPOEGeo <- F280_2018_dash[, .(total = sum(QUANTITY), .N), by = .(State, Order)][order(-N)]
+# dash_flowerGEO <- dplyr::rename(dash_flowerGEO, Geo = ORIGIN_NM)
+# tmp <- dplyr::rename(tmp, Geo = State)
+# dash_flowerGEO <- rbind(dash_flowerGEO, tmp)
 
+write.csv(dash_flowerOriginGeo, 'Q:/Team Drives/APHIS  Private Data/Pathways/dash_flowerOriginGeo.csv')
+write.csv(dash_flowerPOEGeo, 'Q:/Team Drives/APHIS  Private Data/Pathways/dash_flowerPOEGeo.csv')
 write.csv(dash_flowerMonth, 'Q:/Team Drives/APHIS  Private Data/Pathways/dash_flowerMonth.csv')
 write.csv(dash_flowerPOE, 'Q:/Team Drives/APHIS  Private Data/Pathways/dash_flowerPOE.csv')
 write.csv(dash_flowerRegion, 'Q:/Team Drives/APHIS  Private Data/Pathways/dash_flowerRegion.csv')
