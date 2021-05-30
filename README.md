@@ -1,2 +1,4 @@
 # cutflower_model
-Model F280 cut flower shipment inspection outcomes.
+
+Random Forest and Artificial Nueral Network models to predict cut flower consignment 
+inspection outcomes based on flower type, country of origin, season, and port of entry.
